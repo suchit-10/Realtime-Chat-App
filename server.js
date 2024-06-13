@@ -15,7 +15,7 @@ app.use(cors({ origin: true }));
 
 // main request
 app.get("/", async (req, res) => {
-  res.send(`Hello World`);
+  res.send(`Uchat App`);
 });
 
 // authenticate request
