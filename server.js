@@ -1,8 +1,13 @@
 import express from "express";
 import cors from "cors";
 import axios from "axios";
+import { Server } from 'ocket.io';
 
 const app = express();
+const server = app.listen(3000, () => {
+  console.log(`Server is Running on http://localhost:3000`);
+});
+const io = new Server(server);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -15,10 +20,7 @@ app.get("/", async (req, res) => {
 
 // authenticate request
 app.post("/authenticate", async (req, res) => {
-  // code
-  //   get username from body
   const { username } = req.body;
-  //   get or create user on chat engine server
   try {
     const response = await axios.put(
       "https://api.chatengine.io/users/",
@@ -29,7 +31,7 @@ app.post("/authenticate", async (req, res) => {
       },
       {
         headers: {
-          "Private-Key": "e0816c91-b0c1-45c4-b791-bbfcd5b73465",
+          "Private-Key": "ff932d29-b57e-4c57-a352-5fb92d4c9b5b",
         },
       }
     );
@@ -39,6 +41,17 @@ app.post("/authenticate", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log(`Server is Running on http://localhost:3000`);
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  // handle custom events, such as chat messages
+  socket.on('chat message', (msg) => {
+    console.log('message: ' msg);
+    // broadcast the message to all connected clients
+    io.emit('chat message', msg);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('a user disconnected');
+  });
 });
